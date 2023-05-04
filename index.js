@@ -3,8 +3,8 @@ const express = require('express')
 var morgan = require('morgan')
 const app = express()
 const Person = require('./models/person')
-app.use(express.json())
 app.use(express.static('build'))
+app.use(express.json())
 const cors = require('cors')
 app.use(cors())
 
@@ -43,14 +43,24 @@ app.get('/api/persons', (request, response) => {
 
 app.get('/api/persons/:id', (request, response) => {
   Person.findById(request.params.id).then(person => {
-    response.json(person)
+    if (person) {
+      response.json(person)
+    } else {
+      response.status(404).end()
+    }
+  }).catch(error => {
+    //console.log(error)
+    response.status(400).send({error: 'malformatted id'})
   })
 })
 
 app.delete('/api/persons/:id', (request, response) => {
-  const id = Number(request.params.id)
-  persons = persons.filter(person => person.id !== id)
-  response.status(204).end()
+  Person.findByIdAndRemove(request.params.id)
+    .then(result => {
+      response.status(204).end()
+    }).catch(error => {
+      response.status(204).end()
+    })
 })
 
 app.post('/api/persons', (request, response) => {
