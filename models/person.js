@@ -20,7 +20,16 @@ const personSchema = new mongoose.Schema({
     minLength: 3,
     required: true
   },
-  number: String,
+  number: {
+    type: String,
+    minLength: [8, 'Number length is below 8'],
+    validate: {
+      validator: (number) => {
+        return /^\d{2,3}-\d+$/.test(number)
+      }
+    },
+    required: true
+  }
 })
 
 personSchema.set('toJSON', {
