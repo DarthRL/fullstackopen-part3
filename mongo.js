@@ -13,12 +13,12 @@ const url =
 mongoose.set('strictQuery', false)
 mongoose.connect(url)
 
-const noteSchema = new mongoose.Schema({
+const personSchema = new mongoose.Schema({
   name: String,
   number: String,
 })
 
-const Person = mongoose.model('Persons', noteSchema)
+const Person = mongoose.model('Persons', personSchema)
 
 if (process.argv.length === 3) {
   Person.find({}).then(result => {
