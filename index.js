@@ -1,26 +1,38 @@
 require('dotenv').config()
 const express = require('express')
 var morgan = require('morgan')
-const app = express()
 const Person = require('./models/person')
-app.use(express.static('build'))
-app.use(express.json())
 const cors = require('cors')
-app.use(cors())
 
 morgan.token('body', function getContent(req) {
   return JSON.stringify(req.body)
 })
 
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message)
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' })
+  } 
+  next(error)
+}
+
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: 'unknown endpoint' })
+}
+
+const app = express()
+app.use(cors())
+app.use(express.static('build'))
+app.use(express.json())
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms', {
   skip: function (req, res) {
-  return req.method === "POST"
-}
+    return req.method === "POST"
+  }
 }))
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body', {
   skip: function (req, res) {
-  return req.method !== "POST"
-}
+    return req.method !== "POST"
+  }
 }))
 
 let persons = [
@@ -41,26 +53,21 @@ app.get('/api/persons', (request, response) => {
   })
 })
 
-app.get('/api/persons/:id', (request, response) => {
+app.get('/api/persons/:id', (request, response, next) => {
   Person.findById(request.params.id).then(person => {
     if (person) {
       response.json(person)
     } else {
       response.status(404).end()
     }
-  }).catch(error => {
-    //console.log(error)
-    response.status(400).send({error: 'malformatted id'})
-  })
+  }).catch(error => next(error))
 })
 
-app.delete('/api/persons/:id', (request, response) => {
+app.delete('/api/persons/:id', (request, response, next) => {
   Person.findByIdAndRemove(request.params.id)
     .then(result => {
       response.status(204).end()
-    }).catch(error => {
-      response.status(204).end()
-    })
+    }).catch(error => next(error))
 })
 
 app.post('/api/persons', (request, response) => {
@@ -78,6 +85,9 @@ app.post('/api/persons', (request, response) => {
     response.json(savedPerson)
   })
 })
+
+app.use(unknownEndpoint)
+app.use(errorHandler)
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {

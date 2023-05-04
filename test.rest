@@ -7,3 +7,12 @@ Content-Type: application/json
 }
 ###
 GET http://localhost:3001/api/persons
+###wrongid
+GET http://localhost:3001/api/persons/6453a40e73d5f7fd04654143
+###wrongid
+DELETE http://localhost:3001/api/persons/6453a40e73d5f7fd04654143
+###casterror
+GET http://localhost:3001/api/persons/6453a40e73d5f7fd046541
+###casterror
+DELETE http://localhost:3001/api/persons/6453a40e73d5f7fd046541
+
