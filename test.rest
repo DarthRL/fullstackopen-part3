@@ -15,4 +15,19 @@ DELETE http://localhost:3001/api/persons/6453a40e73d5f7fd04654143
 GET http://localhost:3001/api/persons/6453a40e73d5f7fd046541
 ###casterror
 DELETE http://localhost:3001/api/persons/6453a40e73d5f7fd046541
+###
+PUT http://localhost:3001/api/persons/6453a40e73d5f7fd04654148
+Content-Type: application/json
 
+{
+    "name": "aaa",
+    "number": "8888"
+}
+###
+PUT http://localhost:3001/api/persons/6453a40e73d5f
+Content-Type: application/json
+
+{
+    "name": "aaa",
+    "number": 111111
+}

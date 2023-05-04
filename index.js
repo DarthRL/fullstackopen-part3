@@ -12,7 +12,7 @@ const errorHandler = (error, request, response, next) => {
   console.error(error.message)
   if (error.name === 'CastError') {
     return response.status(400).send({ error: 'malformatted id' })
-  } 
+  }
   next(error)
 }
 
@@ -35,16 +35,15 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms :b
   }
 }))
 
-let persons = [
-]
-
 app.get('/', (request, response) => {
   response.send('<h1>Hello World!</h1>')
 })
 
 app.get('/info', (request, response) => {
-  response.send(`<p>Phonebook has info for ${persons.length} people</p>
+  Person.find({}).then(persons => {
+    response.send(`<p>Phonebook has info for ${persons.length} people</p>
     <p>${new Date()}</p>`)
+  })
 })
 
 app.get('/api/persons', (request, response) => {
@@ -84,6 +83,22 @@ app.post('/api/persons', (request, response) => {
   person.save().then(savedPerson => {
     response.json(savedPerson)
   })
+})
+
+app.put('/api/persons/:id', (request, response, next) => {
+  const body = request.body
+  if (!body.name || !body.number) {
+    return response.status(400).json({
+      error: 'name or number missing'
+    })
+  }
+  const person = {
+    name: body.name,
+    number: body.number,
+  }
+  Person.findByIdAndUpdate(request.params.id, person, { new: true }).then(updatedPerson => {
+    response.json(updatedPerson)
+  }).catch(error => next(error))
 })
 
 app.use(unknownEndpoint)
